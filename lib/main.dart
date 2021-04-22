@@ -56,7 +56,20 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'You have pushed the button this many times:',
             ),
-            BlocBuilder<CounterCubit, CounterState>(
+            BlocConsumer<CounterCubit, CounterState>(
+              listener: (context, state) {
+                if (state.wasIncremented == true) {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('Incremented!'),
+                    duration: Duration(seconds: 2),
+                  ));
+                } else if (state.wasIncremented == false) {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('Decremented!'),
+                    duration: Duration(seconds: 2),
+                  ));
+                }
+              },
               builder: (context, state) {
                 return Text(
                   state.counterValue.toString(),
@@ -74,12 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Icon(Icons.remove),
                 ),
                 FloatingActionButton(
-                  onPressed: () {
-                    BlocProvider.of<CounterCubit>(context).increment();
-                  },
-                  tooltip: 'Increment',
-                  child: Icon(Icons.add),
-                )
+                    onPressed: () {
+                      BlocProvider.of<CounterCubit>(context).increment();
+                    },
+                    tooltip: 'Increment',
+                    child: Icon(
+                      Icons.add,
+                    )),
               ],
             ),
           ],
