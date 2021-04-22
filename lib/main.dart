@@ -1,15 +1,23 @@
-import 'dart:developer';
-
+import 'package:counter/presentation/screens/me/me.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'cubit/counter_cubit.dart';
+import 'logic/cubits/cubit/counter_cubit.dart';
+import 'presentation/screens/home/home.dart';
+import 'presentation/screens/settings/settings.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final CounterCubit _counterCubit = CounterCubit();
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -19,91 +27,35 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: MyHomePage(title: 'Flutter Demo Home Page'),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            BlocConsumer<CounterCubit, CounterState>(
-              listener: (context, state) {
-                if (state.wasIncremented == true) {
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text('Incremented!'),
-                    duration: Duration(seconds: 2),
-                  ));
-                } else if (state.wasIncremented == false) {
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text('Decremented!'),
-                    duration: Duration(seconds: 2),
-                  ));
-                }
-              },
-              builder: (context, state) {
-                return Text(
-                  state.counterValue.toString(),
-                  style: Theme.of(context).textTheme.headline4,
-                );
-              },
-            ),
-            Row(
-              children: [
-                FloatingActionButton(
-                  onPressed: () {
-                    BlocProvider.of<CounterCubit>(context).decrement();
-                  },
-                  tooltip: 'Decrement',
-                  child: Icon(Icons.remove),
+        routes: {
+          '/': (context) => BlocProvider.value(
+                value: _counterCubit,
+                child: HomeScreen(
+                  title: 'Home',
+                  color: Colors.blueAccent,
                 ),
-                FloatingActionButton(
-                    onPressed: () {
-                      BlocProvider.of<CounterCubit>(context).increment();
-                    },
-                    tooltip: 'Increment',
-                    child: Icon(
-                      Icons.add,
-                    )),
-              ],
-            ),
-          ],
-        ),
+              ),
+          '/me': (context) => BlocProvider.value(
+              value: _counterCubit,
+              child: MeScreen(
+                title: 'Me',
+                color: Colors.redAccent,
+              )),
+          '/settings': (context) => BlocProvider.value(
+              value: _counterCubit,
+              child: SettingsScreen(
+                title: 'Settings',
+                color: Colors.amberAccent,
+              ))
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _counterCubit.close();
+    super.dispose();
   }
 }

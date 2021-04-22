@@ -8,7 +8,7 @@ class CounterCubit extends Cubit<int> {
 }
 
 void main(List<String> args) {
-  final cubit = CounterCubit();
+  final logic.cubits.cubit = CounterCubit();
 
   print(cubit.state);
 
