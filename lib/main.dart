@@ -1,61 +1,39 @@
-import 'package:counter/presentation/screens/me/me.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:counter/logic/cubits/internet/internet_cubit.dart';
+import 'package:counter/presentation/router/app.router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'logic/cubits/cubit/counter_cubit.dart';
-import 'presentation/screens/home/home.dart';
-import 'presentation/screens/settings/settings.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MyApp(
+    appRouter: AppRouter(),
+    connectivity: Connectivity(),
+  ));
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
+class MyApp extends StatelessWidget {
+  final AppRouter appRouter;
+  final Connectivity connectivity;
 
-class _MyAppState extends State<MyApp> {
-  final CounterCubit _counterCubit = CounterCubit();
+  const MyApp({Key key, this.appRouter, this.connectivity}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CounterCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<InternetCubit>(
+            create: (context) => InternetCubit(connectivity: connectivity)),
+        BlocProvider<CounterCubit>(create: (context) => CounterCubit()),
+      ],
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        routes: {
-          '/': (context) => BlocProvider.value(
-                value: _counterCubit,
-                child: HomeScreen(
-                  title: 'Home',
-                  color: Colors.blueAccent,
-                ),
-              ),
-          '/me': (context) => BlocProvider.value(
-              value: _counterCubit,
-              child: MeScreen(
-                title: 'Me',
-                color: Colors.redAccent,
-              )),
-          '/settings': (context) => BlocProvider.value(
-              value: _counterCubit,
-              child: SettingsScreen(
-                title: 'Settings',
-                color: Colors.amberAccent,
-              ))
-        },
+        onGenerateRoute: appRouter.onGenerateRoute,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    _counterCubit.close();
-    super.dispose();
   }
 }
